@@ -9,11 +9,11 @@ const getProjects=async (req,res,next)=>{
     try{
         const userId=req.params.userId;
         if(!userId){
-            return next(new HttpError("please add user id to add product",422))
+            return next(new HttpError("please add user id to add project",422))
         }
-        const products=await db.any("select * from projects WHERE owner_id=$1",userId);
+        const projects=await db.any("select * from projects WHERE owner_id=$1",userId);
         res.status(200).json({
-            products:products,
+            projects:projects,
             status:"success",
             message:"Successfully fetched users ..."
         })
@@ -24,6 +24,26 @@ const getProjects=async (req,res,next)=>{
 
 }
 
+//****************************get Project ************************
+// ProjectId and userId is parameters
+const getProject=async (req,res,next)=>{
+    try{
+        const userId=req.params.userId;
+        const projectId=req.params.projectId
+        if(!userId||!projectId){
+            return next(new HttpError("please add user id to add project",422))
+        }
+        const projects=await db.any("select * from projects WHERE owner_id=$1 AND id=$2",[userId,projectId]);
+        res.status(200).json({
+            projects:projects,
+            status:"success",
+            message:"Successfully fetched users ..."
+        })
+    } catch (e) {
+        console.log(e);
+        return next(new HttpError("Error : "+e,500))
+    }
+}
 //*******************Add Project ************************************
 // add Project with authorization from the users server
 // add authorization field in header with token value
@@ -32,10 +52,11 @@ const addProject=async (req,res,next)=>{
     try{
         const userId=req.params.userId;
         if(!userId){
-            return next(new HttpError("please add user id to add product",422))
+            return next(new HttpError("please add user id to add project",422))
         }
         //validation body values -
         const errors = validationResult(req);
+        console.log(errors)
         if (!errors.isEmpty()) {
             return next(
                 new HttpError('Invalid inputs passed, please check your data.', 422)
@@ -49,13 +70,13 @@ const addProject=async (req,res,next)=>{
     req.body.end=end;
     let offers=req.body.offers||0
         req.body.offers=offers;
-    const product=await db.one("INSERT INTO projects(name,status_progress" +
+    const project=await db.one("INSERT INTO projects(name,status_progress" +
         ",status_provider,complicity,owner_id,resources,price,provider,start_date,end_date,offers)" +
         "values(${name},${status_progress},${status_provider}" +
         ",${complicity},${owner_id},${resources},${price},${provider},${start},${end},${offers}) RETURNING *",req.body)
 
     res.status(201).json({
-        product,
+        project,
         status:"success",
         message:"1 product is added"
     })
@@ -79,9 +100,9 @@ const updateProject=async (req,res,next)=>{
             );
         }
         const userId=req.params.userId;
-        const productId=req.params.productId;
-        if(!userId||!productId){
-            return next(new HttpError("please add valid user id and product id ",422))
+        const projectId=req.params.projectId;
+        if(!userId||!projectId){
+            return next(new HttpError("please add valid user id and project id ",422))
         }
         const start=new Date(req.body.start_date).toLocaleDateString();
         const end=new Date(req.body.end_date).toLocaleDateString();
@@ -99,7 +120,7 @@ const updateProject=async (req,res,next)=>{
                 req.body.price,
                 req.body.provider,
                 start,end,req.body.offers,
-                userId,productId]);
+                userId,projectId]);
         res.status(201).json({
             status: 'success',
             message:`${result.rowCount} row updated`,
@@ -111,18 +132,18 @@ const updateProject=async (req,res,next)=>{
 
 }
 //*********************************Delete ***************************
-// delete product with authorization from the users server
+// delete project with authorization from the users server
 // add authorization field in header with token value
 const deleteProject=async (req,res,next)=>{
     try{
         const userId=req.params.userId;
-        const productId=req.params.productId;
-        if(!userId||!productId){
-            return next(new HttpError("Invalid or not exist user id or product id ",422))
+        const projectId=req.params.projectId;
+        if(!userId||!projectId){
+            return next(new HttpError("Invalid or not exist user id or project id ",422))
         }
          const result=await db.result("DELETE FROM projects WHERE owner_id=$1" +
              "And id=$2"
-             ,[userId,productId]);
+             ,[userId,projectId]);
          res.status(202).json({
              status:"success",
              message:`${result.rowCount} row deleted`
@@ -134,4 +155,5 @@ const deleteProject=async (req,res,next)=>{
 }
 
 
-module.exports={getProjects,addProject,updateProject,deleteProject}
+module.exports={getProjects,addProject,updateProject
+    ,deleteProject,getProject}

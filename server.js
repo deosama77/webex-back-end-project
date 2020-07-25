@@ -3,7 +3,8 @@ const app =express();
 const cors =require('cors');
 const bodyParser =require('body-parser');
 const HttpError =require("./utilities/http-error") ;
-const productsRoutes=require('./routes/products-routes')
+const productsRoutes=require('./routes/project-routes')
+const config=require('config');
 
 // to handle  different paths and ports
 app.use(cors());
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // handle routes
-app.use("/products",productsRoutes);
+app.use("/projects",productsRoutes);
 
 // error if no route is found .. 404 status
 app.use((req,res,next)=>{
@@ -45,6 +46,7 @@ app.use((error, req, res, next) => {
 
 });
 
-app.listen(3001,function () {
-    console.log("Server is running on port 3001")
+const port =config.get('App.webServer.port')||4001
+app.listen(port,function () {
+    console.log("Server is running on port : "+port)
 })

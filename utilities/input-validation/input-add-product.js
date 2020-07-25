@@ -1,23 +1,25 @@
 const { check } = require('express-validator');
-const checkInputUser=()=>{
+const checkInputsProduct=()=>{
     return [
-        check('first_name')
+        check('name')
             .not()
             .isEmpty()
         ,
-        check('date_birth')
+        check('status_progress')
             .not()
             .isEmpty()
         ,
-        check('is_terms')
+        check('status_provider')
             .not()
-            .isEmpty().isBoolean()
+            .isEmpty()
         ,
-        check('email')
-            .normalizeEmail() // Test@test.com => test@test.com
-            .isEmail(),
-        check('password').isLength({ min: 6 })
+        check('resources')
+            .isNumeric(),
+        check('price').isNumeric(),
+        check("provider").isLength({min:4}),
+        check('start_date').isDate(),
+        check('end_date').isDate()
     ]
 }
 
-module.exports={checkInputUser}
+module.exports={checkInputsProduct}
