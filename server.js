@@ -47,6 +47,7 @@ app.use((error, req, res, next) => {
 });
 
 const port =config.get('App.webServer.port')||4001
-app.listen(port,function () {
+const server=app.listen(port,function () {
     console.log("Server is running on port : "+port)
 })
+module.exports=server

@@ -7,8 +7,9 @@ const isAuth=async (req,res,next)=>{
     if(!userId){
         return next(new HttpError("please add user id to add product",422))
     }
+    console.log(userId,req.headers['authorization'])
     try{
-        const userInfo=await axios.post(config.get('App.userServer.getAuthUrl'),
+        await axios.post(config.get('App.userServer.getAuthUrl'),
             {
                 "userId":userId
             },
@@ -19,7 +20,7 @@ const isAuth=async (req,res,next)=>{
             })
         next();
     }catch (e) {
-        console.log(e);
+        // console.log(e);
         return next(new HttpError("Error : "+e,500))
     }
 }
